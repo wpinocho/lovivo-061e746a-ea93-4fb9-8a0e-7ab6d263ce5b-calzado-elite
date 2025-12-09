@@ -1,13 +1,15 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Tag, X, ShoppingBag } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import StripePayment from "@/components/StripePayment";
+import PayPalPayment from "@/components/PayPalPayment";
 import { CountryPhoneSelect } from "@/components/CountryPhoneSelect";
 import { HeadlessCheckout } from "@/components/headless/HeadlessCheckout";
 import { useURLCheckoutParams } from "@/hooks/useURLCheckoutParams";
@@ -30,6 +32,7 @@ import { useURLCheckoutParams } from "@/hooks/useURLCheckoutParams";
 export default function CheckoutUI() {
   const { params, hasParams } = useURLCheckoutParams();
   const navigate = useNavigate();
+  const [paymentMethod, setPaymentMethod] = useState<'stripe' | 'paypal'>('stripe');
 
   // Scroll to top when component mounts
   useEffect(() => {
@@ -486,43 +489,97 @@ export default function CheckoutUI() {
 
                 {/* Pago */}
                 <section>
-                  <h3 className="text-lg font-semibold mb-4">Payment</h3>
-                  <StripePayment 
-                    amountCents={Math.round(logic.finalTotal * 100)} 
-                    currency={logic.currencyCode.toLowerCase()} 
-                    description={`Pedido #${logic.orderId ?? 's/n'}`} 
-                    metadata={{
-                      order_id: logic.orderId ?? '',
-                      ...(logic.discount?.code ? { discount_code: logic.discount.code } : {})
-                    }} 
-                    email={logic.email} 
-                    name={`${logic.firstName} ${logic.lastName}`.trim()} 
-                    phone={logic.phone} 
-                    orderId={logic.orderId}
-                    checkoutToken={logic.checkoutToken}
-                    onValidationRequired={logic.validateCheckoutFields}
-                    expectedTotal={Math.round(logic.finalTotal * 100)}
-                    deliveryFee={Math.round((logic.shippingFromCheckout || logic.shippingCost) * 100)}
-                    shippingAddress={logic.usePickup ? null : {
-                      ...logic.address,
-                      first_name: logic.firstName,
-                      last_name: logic.lastName
-                    }}
-                    billingAddress={logic.usePickup ? logic.billingAddress : (logic.useSameAddress ? {
-                      ...logic.address,
-                      first_name: logic.firstName,
-                      last_name: logic.lastName
-                    } : logic.billingAddress)}
-                    items={logic.orderItems}
-                    deliveryExpectations={logic.usePickup ? 
-                      [{ type: "pickup", description: "Store pickup" }] : 
-                      (logic.selectedDeliveryMethod ? [logic.selectedDeliveryMethod] : [])
-                    }
-                    pickupLocations={logic.usePickup ? 
-                      (logic.selectedPickupLocation ? [logic.selectedPickupLocation] : []) : 
-                      []
-                    }
-                  />
+                  <h3 className="text-lg font-semibold mb-4">Método de Pago</h3>
+                  <Tabs value={paymentMethod} onValueChange={(v) => setPaymentMethod(v as 'stripe' | 'paypal')} className="w-full">
+                    <TabsList className="grid w-full grid-cols-2 mb-6">
+                      <TabsTrigger value="stripe" className="flex items-center gap-2">
+                        <span>💳</span>
+                        Tarjeta de Crédito
+                      </TabsTrigger>
+                      <TabsTrigger value="paypal" className="flex items-center gap-2">
+                        <span>🅿️</span>
+                        PayPal
+                      </TabsTrigger>
+                    </TabsList>
+                    
+                    <TabsContent value="stripe">
+                      <StripePayment 
+                        amountCents={Math.round(logic.finalTotal * 100)} 
+                        currency={logic.currencyCode.toLowerCase()} 
+                        description={`Pedido #${logic.orderId ?? 's/n'}`} 
+                        metadata={{
+                          order_id: logic.orderId ?? '',
+                          ...(logic.discount?.code ? { discount_code: logic.discount.code } : {})
+                        }} 
+                        email={logic.email} 
+                        name={`${logic.firstName} ${logic.lastName}`.trim()} 
+                        phone={logic.phone} 
+                        orderId={logic.orderId}
+                        checkoutToken={logic.checkoutToken}
+                        onValidationRequired={logic.validateCheckoutFields}
+                        expectedTotal={Math.round(logic.finalTotal * 100)}
+                        deliveryFee={Math.round((logic.shippingFromCheckout || logic.shippingCost) * 100)}
+                        shippingAddress={logic.usePickup ? null : {
+                          ...logic.address,
+                          first_name: logic.firstName,
+                          last_name: logic.lastName
+                        }}
+                        billingAddress={logic.usePickup ? logic.billingAddress : (logic.useSameAddress ? {
+                          ...logic.address,
+                          first_name: logic.firstName,
+                          last_name: logic.lastName
+                        } : logic.billingAddress)}
+                        items={logic.orderItems}
+                        deliveryExpectations={logic.usePickup ? 
+                          [{ type: "pickup", description: "Store pickup" }] : 
+                          (logic.selectedDeliveryMethod ? [logic.selectedDeliveryMethod] : [])
+                        }
+                        pickupLocations={logic.usePickup ? 
+                          (logic.selectedPickupLocation ? [logic.selectedPickupLocation] : []) : 
+                          []
+                        }
+                      />
+                    </TabsContent>
+                    
+                    <TabsContent value="paypal">
+                      <PayPalPayment 
+                        amountCents={Math.round(logic.finalTotal * 100)} 
+                        currency={logic.currencyCode.toLowerCase()} 
+                        description={`Pedido #${logic.orderId ?? 's/n'}`} 
+                        metadata={{
+                          order_id: logic.orderId ?? '',
+                          ...(logic.discount?.code ? { discount_code: logic.discount.code } : {})
+                        }} 
+                        email={logic.email} 
+                        name={`${logic.firstName} ${logic.lastName}`.trim()} 
+                        phone={logic.phone} 
+                        orderId={logic.orderId}
+                        checkoutToken={logic.checkoutToken}
+                        onValidationRequired={logic.validateCheckoutFields}
+                        expectedTotal={Math.round(logic.finalTotal * 100)}
+                        deliveryFee={Math.round((logic.shippingFromCheckout || logic.shippingCost) * 100)}
+                        shippingAddress={logic.usePickup ? null : {
+                          ...logic.address,
+                          first_name: logic.firstName,
+                          last_name: logic.lastName
+                        }}
+                        billingAddress={logic.usePickup ? logic.billingAddress : (logic.useSameAddress ? {
+                          ...logic.address,
+                          first_name: logic.firstName,
+                          last_name: logic.lastName
+                        } : logic.billingAddress)}
+                        items={logic.orderItems}
+                        deliveryExpectations={logic.usePickup ? 
+                          [{ type: "pickup", description: "Store pickup" }] : 
+                          (logic.selectedDeliveryMethod ? [logic.selectedDeliveryMethod] : [])
+                        }
+                        pickupLocations={logic.usePickup ? 
+                          (logic.selectedPickupLocation ? [logic.selectedPickupLocation] : []) : 
+                          []
+                        }
+                      />
+                    </TabsContent>
+                  </Tabs>
                 </section>
               </div>
 
