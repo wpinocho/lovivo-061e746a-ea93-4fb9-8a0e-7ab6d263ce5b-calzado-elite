@@ -119,15 +119,14 @@ export const EcommerceTemplate = ({
           {/* Brand */}
           <div>
             <div className="mb-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full border-2 border-primary-foreground flex items-center justify-center">
-                  <span className="text-primary-foreground font-bold text-xl">P</span>
-                </div>
-                <span className="text-2xl font-bold tracking-tight">PEREGRINO</span>
-              </div>
+              <img 
+                src="https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/b6caf6db-baf8-416d-9e14-05cd1947c3e7/1765477533191-tfxlgbb3b1.jpg" 
+                alt="Peregrino Shoes" 
+                className="h-16 w-auto object-contain brightness-0 invert"
+              />
             </div>
             <p className="text-primary-foreground/70 leading-relaxed">
-              Calzado de alta gama para el caballero distinguido. Artesanía italiana desde 1985.
+              Calzado artesanal mexicano de alta gama. Tradición, calidad y diseño desde 1985.
             </p>
           </div>
 

@@ -46,7 +46,7 @@ export const IndexUI = ({ logic }: IndexUIProps) => {
               Calzado de alta gama para el caballero distinguido
             </p>
             <p className="text-base text-muted-foreground max-w-2xl mx-auto">
-              Artesanía italiana, piel premium y diseño atemporal. Cada par cuenta una historia de elegancia y tradición.
+              Artesanía mexicana, piel premium y diseño atemporal. Cada par es elaborado a mano con técnicas tradicionales y pasión por el detalle.
             </p>
           </div>
         </div>
